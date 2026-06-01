@@ -144,7 +144,7 @@
   .message.user .msg-avatar { background:var(--dark); color:white; }
   .msg-body { max-width:min(800px,82%); display:flex; flex-direction:column; gap:5px; }
   .message.user .msg-body { align-items:flex-end; }
-  .msg-bubble { padding:13px 16px; border-radius:20px; font-size:14px; line-height:1.65; }
+  .msg-bubble { padding:13px 16px; border-radius:20px; font-size:14px; line-height:1.65; min-height:52px; }
   .message.user .msg-bubble { background:linear-gradient(145deg,#302c28,#151413); color:#fffaf2; border-bottom-right-radius:5px; }
   .message.assistant .msg-bubble { background:rgba(255,250,242,.66); border:1px solid rgba(52,43,33,.10); box-shadow:var(--shadow-soft); border-bottom-left-radius:5px; }
   .msg-bubble h1,.msg-bubble h2,.msg-bubble h3,.msg-bubble h4 { font-family:var(--font-display); margin:10px 0 6px; }
@@ -174,6 +174,31 @@
   .md-table td { padding:8px 13px; border-bottom:1px solid var(--line); color:var(--t2); }
   .md-table tr:last-child td { border-bottom:none; }
   .md-table tr:hover td { background:rgba(255,250,242,.6); }
+  .thinking-loader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--t2);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.thinking-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--t2);
+  opacity: .35;
+  animation: thinkingPulse 1.2s infinite ease-in-out;
+}
+
+.thinking-dot:nth-child(3) { animation-delay: .15s; }
+.thinking-dot:nth-child(4) { animation-delay: .3s; }
+
+@keyframes thinkingPulse {
+  0%, 80%, 100% { transform: scale(.7); opacity: .25; }
+  40% { transform: scale(1); opacity: .85; }
+}
 
   @media (max-width:820px) {
   html, body { height: 100dvh; overflow: hidden; }
@@ -418,7 +443,9 @@ function handleChunk(chunk) {
   case 'token':
   if (!currentAssistantMsg) currentAssistantMsg=createAssistantMessage();
   const loader=currentAssistantMsg.querySelector('.thinking-loader');
-  if (loader) loader.remove();
+  if (loader) {
+  loader.style.display='none';
+}
   const tc=currentAssistantMsg.querySelector('.text-content');
   if (tc) {
     tc.style.display='inline';
@@ -444,7 +471,12 @@ function createAssistantMessage() {
   const time=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
   const el=document.createElement('div');
   el.className='message assistant';
-  el.innerHTML=`<div class="lynthz-avatar small">Ly</div><div class="msg-body"><div class="msg-bubble"><span class="thinking-loader"><span>Thinking</span><span class="thinking-dot"></span><span class="thinking-dot"></span><span class="thinking-dot"></span></span><span class="text-content" style="display:none"></span></div><div class="msg-meta"><span>${time}</span><span class="msg-model-tag"></span></div></div>`;
+  el.innerHTML=`<div class="lynthz-avatar small">Ly</div><div class="msg-body"><div class="msg-bubble"><span class="thinking-loader" style="display:flex">
+  <span>Thinking</span>
+  <span class="thinking-dot"></span>
+  <span class="thinking-dot"></span>
+  <span class="thinking-dot"></span>
+</span><span>Thinking</span><span class="thinking-dot"></span><span class="thinking-dot"></span><span class="thinking-dot"></span></span><span class="text-content" style="display:none"></span></div><div class="msg-meta"><span>${time}</span><span class="msg-model-tag"></span></div></div>`;
   document.getElementById('messages').appendChild(el);
   scrollToBottom(); return el;
 }
@@ -470,8 +502,10 @@ function sendMessage() {
   if (attachedFile) { sendWithFile(text||'Analyze this file'); return; }
   if (!ws||ws.readyState!==WebSocket.OPEN) { addSystemMessage('Reconnecting…'); connectWS(); return; }
   addUserMessage(text); input.value=''; autoResize(input);
-  isStreaming=true; setSendEnabled(false);
-  ws.send(JSON.stringify({message:text,model:selectedModel,user_id:currentUserId}));
+ isStreaming=true; 
+setSendEnabled(false);
+currentAssistantMsg = createAssistantMessage();
+ws.send(JSON.stringify({message:text,model:selectedModel,user_id:currentUserId}));
 }
 
 function sendWithFile(text) {
@@ -479,7 +513,10 @@ function sendWithFile(text) {
   const file=attachedFile; const isImage=file.type?.startsWith('image/');
   const cleanText=text||(isImage?'Analyze this image':'Analyze this file');
   addUserMessage(cleanText); document.getElementById('chat-input').value='';
-  autoResize(document.getElementById('chat-input')); isStreaming=true; setSendEnabled(false);
+  autoResize(document.getElementById('chat-input')); 
+isStreaming=true; 
+setSendEnabled(false);
+currentAssistantMsg = createAssistantMessage();
   const reader=new FileReader();
   reader.onload=()=>{
     const b64=String(reader.result||'').split(',')[1]||''; const mime=file.type||'application/octet-stream';
