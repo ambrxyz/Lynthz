@@ -10,6 +10,9 @@ A fast, intelligent AI assistant with multi-model routing, structured search, 3-
 | `deepseek` | DeepSeek R1 (Groq) | Reasoning, analysis, math |
 | `gemini` | Gemini 2.0 Flash | Search, long context, vision |
 | `mixtral` | Mixtral 8x7B (Groq) | Multilingual, balanced |
+## Preview
+
+![Lynthz UI](assets/home.png)
 
 ## Setup
 
