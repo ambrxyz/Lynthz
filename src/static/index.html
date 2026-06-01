@@ -632,6 +632,8 @@ async function handleSignup() {
 function onAuthSuccess(data) {
   currentUser = data.user || data;
   currentUserId = data.user?.id || data.user_id || data.id;
+  console.log('AUTH DATA:', JSON.stringify(data));
+console.log('USER ID:', currentUserId);
 
   if (!currentUserId) {
     showAuthError('Login worked, but user id was missing. Check backend auth response.');
