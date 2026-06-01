@@ -157,12 +157,20 @@
 
   .brand-mini { display:flex; align-items:center; gap:10px; padding: 4px 6px 12px; cursor:pointer; user-select:none; }
   .mini-mark {
-    width: 36px; height: 36px; border-radius: 13px;
+    width: 36px; height: 36px; border-radius: 13px 10px 13px 10px;
     display:grid; place-items:center;
-    color: var(--white); font-family:var(--font-display); font-weight:800; letter-spacing:-.8px;
-    background: linear-gradient(145deg, #45413c, #11100f 70%);
-    border: 1px solid rgba(255,255,255,.28);
-    box-shadow: inset 0 1px 5px rgba(255,255,255,.22), inset 0 -10px 18px rgba(0,0,0,.30), 0 10px 20px rgba(0,0,0,.12);
+    color:#21170d; font-family:var(--font-display); font-weight:950; letter-spacing:-.8px;
+    background:
+      linear-gradient(135deg, rgba(255,255,255,.72), rgba(255,255,255,.08)),
+      linear-gradient(145deg, #e1c08a, #8f642f 70%);
+    border: 1px solid rgba(255,255,255,.45);
+    box-shadow: 0 14px 28px rgba(145,94,37,.20), inset 0 1px 0 rgba(255,255,255,.70);
+    position: relative;
+  }
+  .mini-mark::after {
+    content: "✧";
+    position:absolute; right:6px; top:3px;
+    font-size:9px; color:rgba(255,255,255,.9);
   }
   .brand-text { font-family:var(--font-display); font-weight:800; font-size:18px; letter-spacing:-.5px; }
   .brand-sub { font-size:10px; color:var(--t3); margin-top:1px; font-weight:600; }
@@ -309,6 +317,22 @@
     cursor:pointer; color:var(--t2); border-radius:50%; flex-shrink:0; transition:all .15s ease;
   }
   .attach-btn:hover { color:var(--text); background:rgba(0,0,0,.045); }
+
+  .mic-btn {
+    width:38px; height:38px; display:flex; align-items:center; justify-content:center;
+    cursor:pointer; color:var(--t2); border-radius:50%; flex-shrink:0;
+    border:0; background:transparent; transition:all .15s ease;
+  }
+  .mic-btn:hover { color:var(--text); background:rgba(0,0,0,.045); }
+  .mic-btn.listening {
+    color:#e05555;
+    background:rgba(224,85,85,.10);
+    animation:micPulse 1s ease infinite;
+  }
+  @keyframes micPulse {
+    0%,100% { box-shadow:0 0 0 0 rgba(224,85,85,.28); }
+    50% { box-shadow:0 0 0 8px rgba(224,85,85,0); }
+  }
   #chat-input {
     flex:1; border:0; outline:0; resize:none; background:transparent;
     min-height:25px; max-height:130px; padding:4px 2px;
@@ -448,41 +472,34 @@
   @media (max-width: 820px) {
     html, body {
       height: 100dvh;
-      height: -webkit-fill-available;
       overflow: hidden;
     }
 
     .app {
-      width: 100vw;
       height: 100dvh;
-      height: -webkit-fill-available;
     }
 
-    .sidebar { display: none; }
+    .sidebar {
+      display: none;
+    }
 
     .main {
       height: 100dvh;
-      height: -webkit-fill-available;
-      min-height: 0;
-      overflow: hidden;
     }
 
     .topbar {
       height: 64px;
       padding: 14px 18px;
-      flex-shrink: 0;
     }
 
     .messages {
-      flex: 1;
-      min-height: 0;
-      overflow-y: auto;
       padding: 18px;
       padding-bottom: 150px !important;
-      -webkit-overflow-scrolling: touch;
     }
 
-    .main.chatting .messages { padding-bottom: 150px !important; }
+    .main.chatting .messages {
+      padding-bottom: 150px !important;
+    }
 
     .input-area,
     .main.chatting .input-area {
@@ -505,23 +522,15 @@
 
     #chat-input {
       font-size: 16px;
-      max-height: 110px;
     }
 
-    .file-preview-wrap {
-      left: 12px;
-      bottom: 72px;
+    .model-pill {
+      padding: 0 9px;
     }
 
-    .model-pill span.label { display: none; }
-
-    .model-menu {
-      right: 0;
-      bottom: 52px;
-      width: min(260px, calc(100vw - 24px));
+    .model-pill span.label {
+      display: none;
     }
-
-    .msg-body { max-width: 84%; }
 
     .hero-logo {
       width: 76px;
@@ -529,11 +538,8 @@
       border-radius: 23px;
     }
 
-    .hero-letters { font-size: 30px; }
-
-    .welcome {
-      min-height: calc(100dvh - 140px);
-      padding: 0 20px 110px;
+    .hero-letters {
+      font-size: 30px;
     }
 
     .welcome-title {
@@ -627,6 +633,14 @@
         </label>
         <input type="file" id="file-input" accept="image/*,.pdf,.txt" style="display:none" onchange="onFileSelect(event)" />
         <textarea id="chat-input" placeholder="What do you want to know?" rows="1" onkeydown="handleKeydown(event)" oninput="autoResize(this)"></textarea>
+        <button class="mic-btn" id="mic-btn" onclick="toggleMic()" title="Speak">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+            <line x1="12" y1="19" x2="12" y2="23"></line>
+            <line x1="8" y1="23" x2="16" y2="23"></line>
+          </svg>
+        </button>
         <div class="model-switch">
           <button class="model-pill" onclick="toggleModelMenu()" title="Switch model">
             <span class="model-dot"></span>
@@ -788,6 +802,7 @@ let currentModelTag = '';
 let models = [];
 let attachedFile = null;
 let pendingPayload = null;
+let responseWatchdog = null;
 
 // FIX 4: Per-user localStorage history
 let historyTitles = [];
@@ -795,6 +810,7 @@ function getHistoryKey() { return `lynthz_history_titles_${currentUserId || 'gue
 function loadHistoryTitles() { historyTitles = JSON.parse(localStorage.getItem(getHistoryKey()) || '[]'); }
 
 function connectWS() {
+  if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) return;
   const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
   ws = new WebSocket(`${proto}//${location.host}/ws/chat`);
   ws.onopen = () => {
@@ -897,6 +913,7 @@ function handleChunk(chunk) {
         currentAssistantMsg = null;
       }
       isStreaming = false;
+      stopResponseWatchdog();
       setSendEnabled(true);
       scrollToBottom();
       break;
@@ -905,6 +922,7 @@ function handleChunk(chunk) {
       if (currentAssistantMsg) removeThinkingLoader(currentAssistantMsg);
       addSystemMessage(`Error: ${chunk.message}`);
       isStreaming = false;
+      stopResponseWatchdog();
       setSendEnabled(true);
       break;
   }
@@ -966,7 +984,8 @@ function sendMessage() {
   autoResize(input);
   isStreaming = true;
   setSendEnabled(false);
-  // FIX: Always send currentUserId
+  currentAssistantMsg = createAssistantMessage();
+  startResponseWatchdog();
   ws.send(JSON.stringify({ message: text, model: selectedModel, user_id: currentUserId }));
 }
 
@@ -979,6 +998,8 @@ function sendWithFile(text) {
   addUserMessage(cleanText);
   input.value = ''; autoResize(input);
   isStreaming = true; setSendEnabled(false);
+  currentAssistantMsg = createAssistantMessage();
+  startResponseWatchdog();
   const reader = new FileReader();
   reader.onload = () => {
     const result = String(reader.result || '');
@@ -1162,7 +1183,70 @@ async function clearConversation() {
   currentAssistantMsg = null; isStreaming = false; setSendEnabled(true);
 }
 
+
+let recognition = null;
+let isListening = false;
+
+function initSpeech() {
+  const SpeechAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const mic = document.getElementById('mic-btn');
+  if (!SpeechAPI) {
+    if (mic) mic.style.display = 'none';
+    return;
+  }
+
+  recognition = new SpeechAPI();
+  recognition.continuous = false;
+  recognition.interimResults = true;
+  recognition.lang = 'en-US';
+
+  recognition.onstart = () => {
+    isListening = true;
+    if (mic) mic.classList.add('listening');
+    const input = document.getElementById('chat-input');
+    if (input) input.placeholder = 'Listening…';
+  };
+
+  recognition.onresult = (event) => {
+    const transcript = Array.from(event.results).map(r => r[0].transcript).join('');
+    const input = document.getElementById('chat-input');
+    if (input) {
+      input.value = transcript;
+      autoResize(input);
+    }
+  };
+
+  recognition.onend = () => {
+    isListening = false;
+    if (mic) mic.classList.remove('listening');
+    const input = document.getElementById('chat-input');
+    if (input) input.placeholder = 'What do you want to know?';
+  };
+
+  recognition.onerror = (event) => {
+    isListening = false;
+    if (mic) mic.classList.remove('listening');
+    const input = document.getElementById('chat-input');
+    if (input) input.placeholder = 'What do you want to know?';
+    if (event.error === 'not-allowed') addSystemMessage('Mic blocked. Allow microphone access in browser settings.');
+  };
+}
+
+function toggleMic() {
+  if (!recognition) {
+    addSystemMessage('Voice input is not supported in this browser.');
+    return;
+  }
+  try {
+    if (isListening) recognition.stop();
+    else recognition.start();
+  } catch (e) {
+    addSystemMessage('Could not start mic. Try again.');
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+  initSpeech();
   if (!checkStoredAuth()) {
     document.getElementById('auth-screen').style.display = 'flex';
     document.getElementById('app').style.display = 'none';
