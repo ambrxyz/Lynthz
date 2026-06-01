@@ -415,10 +415,16 @@ function handleChunk(chunk) {
         cap.textContent=`🎨 "${chunk.data.prompt}"`; wrap.appendChild(cap);
         currentAssistantMsg.querySelector('.msg-bubble').appendChild(wrap);
       } break;
-    case 'token':
-      if (!currentAssistantMsg) currentAssistantMsg=createAssistantMessage();
-      const tc=currentAssistantMsg.querySelector('.text-content');
-      if (tc) tc.textContent+=chunk.content; scrollToBottom(); break;
+  case 'token':
+  if (!currentAssistantMsg) currentAssistantMsg=createAssistantMessage();
+  const loader=currentAssistantMsg.querySelector('.thinking-loader');
+  if (loader) loader.remove();
+  const tc=currentAssistantMsg.querySelector('.text-content');
+  if (tc) {
+    tc.style.display='inline';
+    tc.textContent+=chunk.content;
+  }
+  scrollToBottom(); break;
     case 'done':
       if (currentAssistantMsg) {
         const t=currentAssistantMsg.querySelector('.text-content');
@@ -438,7 +444,7 @@ function createAssistantMessage() {
   const time=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
   const el=document.createElement('div');
   el.className='message assistant';
-  el.innerHTML=`<div class="lynthz-avatar small">Ly</div><div class="msg-body"><div class="msg-bubble"><span class="text-content"></span></div><div class="msg-meta"><span>${time}</span><span class="msg-model-tag"></span></div></div>`;
+  el.innerHTML=`<div class="lynthz-avatar small">Ly</div><div class="msg-body"><div class="msg-bubble"><span class="thinking-loader"><span>Thinking</span><span class="thinking-dot"></span><span class="thinking-dot"></span><span class="thinking-dot"></span></span><span class="text-content" style="display:none"></span></div><div class="msg-meta"><span>${time}</span><span class="msg-model-tag"></span></div></div>`;
   document.getElementById('messages').appendChild(el);
   scrollToBottom(); return el;
 }
