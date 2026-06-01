@@ -984,7 +984,6 @@ function sendMessage() {
   autoResize(input);
   isStreaming = true;
   setSendEnabled(false);
-  currentAssistantMsg = createAssistantMessage();
   startResponseWatchdog();
   ws.send(JSON.stringify({ message: text, model: selectedModel, user_id: currentUserId }));
 }
@@ -998,7 +997,6 @@ function sendWithFile(text) {
   addUserMessage(cleanText);
   input.value = ''; autoResize(input);
   isStreaming = true; setSendEnabled(false);
-  currentAssistantMsg = createAssistantMessage();
   startResponseWatchdog();
   const reader = new FileReader();
   reader.onload = () => {
@@ -1243,6 +1241,22 @@ function toggleMic() {
   } catch (e) {
     addSystemMessage('Could not start mic. Try again.');
   }
+}
+
+function startResponseWatchdog() {
+  stopResponseWatchdog();
+  responseWatchdog = setTimeout(() => {
+    if (isStreaming) {
+      removeThinkingLoader(currentAssistantMsg);
+      addSystemMessage('Response timed out. Please try again.');
+      isStreaming = false;
+      setSendEnabled(true);
+      currentAssistantMsg = null;
+    }
+  }, 30000);
+}
+function stopResponseWatchdog() {
+  if (responseWatchdog) { clearTimeout(responseWatchdog); responseWatchdog = null; }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
