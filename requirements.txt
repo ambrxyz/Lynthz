@@ -1,0 +1,11 @@
+fastapi==0.115.12
+uvicorn==0.34.3
+websockets
+python-multipart
+groq
+tavily-python
+requests==2.32.5
+python-dotenv
+google-generativeai
+psutil==7.1.0
+pillow==11.3.0

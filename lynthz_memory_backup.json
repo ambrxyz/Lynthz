@@ -1,0 +1,19 @@
+{
+  "facts": [
+    {
+      "fact": "My name is Amber\nI love coding and AI\nUse a casual tone\nWhat do you know about me?",
+      "ts": "2026-05-31T17:18:14.456089"
+    }
+  ],
+  "preferences": {},
+  "created": "2026-05-31T17:16:31.451693",
+  "profile": {
+    "name": "Amber\nI Love Coding",
+    "timezone": null,
+    "language": "English",
+    "interests": [],
+    "response_style": "casual",
+    "created": "2026-05-31T17:16:31.997035",
+    "updated": "2026-05-31T17:18:14.454889"
+  }
+}

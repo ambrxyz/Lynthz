@@ -1,0 +1,7 @@
+venv/
+__pycache__/
+*.pyc
+.env
+lynthz_memory.json
+src/static/generated.png
+.DS_Store
