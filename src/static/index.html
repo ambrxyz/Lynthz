@@ -403,6 +403,12 @@ function connectWS() {
   ws.onmessage=(e)=>handleChunk(JSON.parse(e.data));
   ws.onclose=()=>{ setTimeout(connectWS,2000); };
   ws.onerror=(err)=>console.error('[Lynthz] WS error',err);
+  function removeThinkingLoader() {
+  if (currentAssistantMsg) {
+    const loader = currentAssistantMsg.querySelector('.thinking-loader');
+    if (loader) loader.remove();
+  }
+}
 }
 
 function handleChunk(chunk) {
@@ -410,6 +416,7 @@ function handleChunk(chunk) {
     case 'model_info': currentModelTag=chunk.label||getActiveModelLabel(); break;
     case 'searching':
       if (!currentAssistantMsg) currentAssistantMsg=createAssistantMessage();
+      removeThinkingLoader();
       const pill=document.createElement('div'); pill.className='searching-pill';
       pill.innerHTML='<span>🔍</span> Searching the web…';
       currentAssistantMsg.querySelector('.msg-bubble').appendChild(pill); break;
@@ -440,16 +447,19 @@ function handleChunk(chunk) {
         cap.textContent=`🎨 "${chunk.data.prompt}"`; wrap.appendChild(cap);
         currentAssistantMsg.querySelector('.msg-bubble').appendChild(wrap);
       } break;
-  case 'token':
+ case 'token':
   if (!currentAssistantMsg) currentAssistantMsg=createAssistantMessage();
-  const loader=currentAssistantMsg.querySelector('.thinking-loader');
-  if (loader) loader.remove();
+
+  removeThinkingLoader();
+
   const tc=currentAssistantMsg.querySelector('.text-content');
   if (tc) {
     tc.style.display='inline';
-    tc.textContent+=chunk.content;
+    tc.textContent += chunk.content.replace(/^Thinking\s*/i, '');
   }
-  scrollToBottom(); break;
+
+  scrollToBottom();
+  break;
     case 'done':
       if (currentAssistantMsg) {
         const t=currentAssistantMsg.querySelector('.text-content');
